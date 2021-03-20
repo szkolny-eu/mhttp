@@ -10,4 +10,8 @@ public class ParserException extends Exception{
     public ParserException(){
         super("Response parse exception.");
     }
+
+    public ParserException(Throwable cause) {
+        super("Response parse exception.", cause);
+    }
 }

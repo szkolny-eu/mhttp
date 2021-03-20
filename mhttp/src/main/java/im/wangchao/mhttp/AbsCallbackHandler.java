@@ -121,7 +121,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback, Conve
                 Parser_Type data = apply(okResponse);
                 sendSuccessEvent(data, okResponse);
             } catch (Exception e) {
-                sendFailureEvent(okResponse = Response.newResponse(req, response), new ParserException());
+                sendFailureEvent(okResponse = Response.newResponse(req, response), e);
             }
         } else {
             sendFailureEvent(okResponse = Response.newResponse(req, response), new ResponseFailException());

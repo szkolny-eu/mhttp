@@ -30,6 +30,7 @@ public final class Response {
 
     private final Request request;
     private final okhttp3.Response rawResponse;
+    public String parserErrorBody = null;
 
     private Response(Request request, okhttp3.Response rawResponse){
         this.request = request;
