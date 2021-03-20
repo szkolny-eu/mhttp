@@ -335,6 +335,13 @@ public final class Request {
             return this;
         }
 
+        public Builder addParams(List<Pair<String, Object>> params) {
+            if (params != null){
+                mRequestParams.put(params);
+            }
+            return this;
+        }
+
         public Builder method(@NonNull String method) {
             this.mMethod = method;
             return this;

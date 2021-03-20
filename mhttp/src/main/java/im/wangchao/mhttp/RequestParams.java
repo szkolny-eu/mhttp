@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,7 @@ public class RequestParams{
     final private static Charset UTF_8       = Charset.forName(UTF_8_STR);
 
     //params
-    final private ConcurrentHashMap<String, Object>         urlParams       = new ConcurrentHashMap<>();
+    final private List<Pair<String, Object>>         urlParams       = new ArrayList<>();
     final private ConcurrentHashMap<String, StreamWrapper>  streamParams    = new ConcurrentHashMap<>();
     final private ConcurrentHashMap<String, FileWrapper>    fileParams      = new ConcurrentHashMap<>();
 
@@ -77,7 +78,7 @@ public class RequestParams{
         if (params == null){
             return;
         }
-        this.urlParams.putAll(params.getUrlParams());
+        this.urlParams.addAll(params.getUrlParams());
         this.streamParams.putAll(params.getStreamParams());
         this.fileParams.putAll(params.getFileParams());
         this.contentEncoding = params.contentEncoding();
@@ -99,8 +100,8 @@ public class RequestParams{
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(MultipartBody.FORM);
         //form
-        for (Map.Entry<String, Object> entry: urlParams.entrySet()){
-            builder.addFormDataPart(entry.getKey(), String.valueOf(entry.getValue()));
+        for (Pair<String, Object> entry: urlParams){
+            builder.addFormDataPart(entry.first, String.valueOf(entry.second));
         }
         //stream
         for (Map.Entry<String, RequestParams.StreamWrapper> streamEntry: streamParams.entrySet()){
@@ -129,8 +130,8 @@ public class RequestParams{
 
     private FormBody formBody(){
         FormBody.Builder builder = new FormBody.Builder();
-        for (Map.Entry<String, Object> entry: urlParams.entrySet()){
-            builder.add(entry.getKey(), String.valueOf(entry.getValue()));
+        for (Pair<String, Object> entry: urlParams){
+            builder.add(entry.first, String.valueOf(entry.second));
         }
         return builder.build();
     }
@@ -173,9 +174,15 @@ public class RequestParams{
         }
     }
 
+    public void put(List<Pair<String, Object>> params){
+        if (params != null){
+            urlParams.addAll(params);
+        }
+    }
+
     public void put(String key, String value) {
         if (!TextUtils.isEmpty(key) && !TextUtils.isEmpty(value)) {
-            urlParams.put(key, value);
+            urlParams.add(new Pair<>(key, value));
         }
     }
 
@@ -188,7 +195,7 @@ public class RequestParams{
                     // Silent
                 }
             } else {
-                urlParams.put(key, value);
+                urlParams.add(new Pair<>(key, value));
             }
         }
     }
@@ -231,13 +238,24 @@ public class RequestParams{
     }
 
     public void remove(String key){
-        urlParams.remove(key);
+        Pair<String, Object> removing = null;
+        for (Pair<String, Object> entry: urlParams) {
+            if (entry.first.equals(key)) {
+                removing = entry;
+            }
+        }
+        urlParams.remove(removing);
         streamParams.remove(key);
         fileParams.remove(key);
     }
 
     public boolean has(String key){
-        return (urlParams.containsKey(key) || streamParams.containsKey(key) || fileParams.containsKey(key));
+        for (Pair<String, Object> entry: urlParams) {
+            if (entry.first.equals(key)) {
+                return true;
+            }
+        }
+        return (streamParams.containsKey(key) || fileParams.containsKey(key));
     }
 
     public boolean isEmpty(){
@@ -249,9 +267,9 @@ public class RequestParams{
 
         String key;
         Object value;
-        for (Map.Entry<String, Object> entry: urlParams.entrySet()){
-            key = entry.getKey();
-            value = entry.getValue();
+        for (Pair<String, Object> entry: urlParams){
+            key = entry.first;
+            value = entry.second;
 
             if (key.isEmpty() || value == null){
                 continue;
@@ -275,17 +293,17 @@ public class RequestParams{
         return fileParams;
     }
 
-    public ConcurrentHashMap<String, Object> getUrlParams() {
+    public List<Pair<String, Object>> getUrlParams() {
         return urlParams;
     }
 
     public HttpUrl formatURLParams(HttpUrl url) {
         HttpUrl.Builder builder = url.newBuilder();
         if (urlParams.size() != 0) {
-            for (Map.Entry<String, Object> entry : urlParams.entrySet()) {
+            for (Pair<String, Object> entry : urlParams) {
                 try {
-                    builder.addEncodedQueryParameter(URLEncoder.encode(entry.getKey(), contentEncoding),
-                            URLEncoder.encode(String.valueOf(entry.getValue()), contentEncoding));
+                    builder.addEncodedQueryParameter(URLEncoder.encode(entry.first, contentEncoding),
+                            URLEncoder.encode(String.valueOf(entry.second), contentEncoding));
                 } catch (UnsupportedEncodingException e) {
                     //Silent
                 }
@@ -300,14 +318,14 @@ public class RequestParams{
     public String formatURLParams() {
         StringBuilder sb = new StringBuilder();
         if (urlParams.size() != 0) {
-            for (Map.Entry<String, Object> entry : urlParams.entrySet()) {
+            for (Pair<String, Object> entry : urlParams) {
                 String encode = "";
                 try {
-                    encode = URLEncoder.encode(String.valueOf(entry.getValue()), contentEncoding);
+                    encode = URLEncoder.encode(String.valueOf(entry.second), contentEncoding);
                 } catch (UnsupportedEncodingException e) {
                     //Silent
                 }
-                sb.append(entry.getKey()).append("=").append(encode);
+                sb.append(entry.first).append("=").append(encode);
                 sb.append("&");
             }
             sb.deleteCharAt(sb.length() - 1);
@@ -322,8 +340,8 @@ public class RequestParams{
     public List<Pair<String, Object>> getParamsList(){
         List<Pair<String, Object>> params = new LinkedList<>();
 
-        for (ConcurrentHashMap.Entry<String, Object> entry : urlParams.entrySet()) {
-            params.add(new Pair<>(entry.getKey(), entry.getValue()));
+        for (Pair<String, Object> entry : urlParams) {
+            params.add(new Pair<>(entry.first, entry.second));
         }
 
         return params;
