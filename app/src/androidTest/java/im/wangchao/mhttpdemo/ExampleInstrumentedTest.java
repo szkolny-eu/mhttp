@@ -1,8 +1,10 @@
 package im.wangchao.mhttpdemo;
 
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
+
+import androidx.test.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
+
 import android.util.Log;
 
 import org.junit.Test;
@@ -34,11 +36,13 @@ public class ExampleInstrumentedTest {
         Request.builder().post()
                 .url("https://www.baidu.com")
                 .callback(new TextCallbackHandler(){
-                    @Override protected void onSuccess(String data, Response response) {
+                    @Override
+                    public void onSuccess(String data, Response response) {
                         Log.e("wcwcwc", data);
                     }
 
-                    @Override protected void onFailure(Response response, Throwable throwable) {
+                    @Override
+                    public void onFailure(Response response, Throwable throwable) {
                         Log.e("wcwcwc", "error");
                     }
                 }).build().enqueue();

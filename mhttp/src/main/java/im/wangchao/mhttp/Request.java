@@ -1,6 +1,7 @@
 package im.wangchao.mhttp;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import android.util.Pair;
 import android.util.Log;
 
 import java.io.File;
