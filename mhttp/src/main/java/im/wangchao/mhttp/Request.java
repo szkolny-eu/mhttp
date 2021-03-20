@@ -21,6 +21,7 @@ import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
+import okio.Buffer;
 
 /**
  * <p>Description  : MRequest.</p>
@@ -81,6 +82,16 @@ public final class Request {
 
     public RequestBody body() {
         return mRawRequest.body();
+    }
+
+    public String bodyToString(){
+        try {
+            final Buffer buffer = new Buffer();
+            body().writeTo(buffer);
+            return buffer.readUtf8();
+        } catch (final Exception e) {
+            return "did not work. "+e.getMessage();
+        }
     }
 
     public Object tag() {
