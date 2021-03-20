@@ -19,7 +19,7 @@ import okhttp3.internal.Util;
  * <p>Time         : 下午2:39.</p>
  */
 public class FileCallbackHandler extends AbsCallbackHandler<File> {
-    final private File file;
+    private File file;
     final private static int BUFFER_SIZE = 4096;
 
     public FileCallbackHandler(Context context){
@@ -72,12 +72,13 @@ public class FileCallbackHandler extends AbsCallbackHandler<File> {
         if (instream != null) {
             try {
                 byte[] tmp = new byte[BUFFER_SIZE];
-                int l, count = 0;
+                int l;
+                long count = 0;
                 while ((l = instream.read(tmp)) != -1 && !Thread.currentThread().isInterrupted()) {
                     count += l;
                     buffer.write(tmp, 0, l);
 
-                    sendProgressEvent(count, (int) contentLength);
+                    sendProgressEvent(count, contentLength);
                 }
             } finally {
                 Util.closeQuietly(instream);

@@ -80,7 +80,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback, Conve
     /** Working thread depends on {@link #mExecutor}, default UI. */
     public void onCancel(){}
     /** Working thread depends on {@link #mExecutor}, default UI. */
-    public void onProgress(int bytesWritten, int bytesTotal){}
+    public void onProgress(long bytesWritten, long bytesTotal){}
     /** Working thread depends on {@link #mExecutor}, default UI. */
     public void onUploadProgress(int bytesWritten, int bytesTotal){}
     /** Working thread depends on {@link #mExecutor}, default UI. */
@@ -193,7 +193,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback, Conve
         });
     }
 
-    public final void sendProgressEvent(final int bytesWritten, final int bytesTotal) {
+    public final void sendProgressEvent(final long bytesWritten, final long bytesTotal) {
         execute(()->{
             try {
                 onProgress(bytesWritten, bytesTotal);

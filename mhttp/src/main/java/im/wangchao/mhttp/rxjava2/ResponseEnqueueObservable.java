@@ -70,7 +70,7 @@ public class ResponseEnqueueObservable<T> extends Observable<T> {
             originCallback.onUploadProgress(bytesWritten, bytesTotal);
         }
 
-        @Override public void onProgress(int bytesWritten, int bytesTotal) {
+        @Override public void onProgress(long bytesWritten, long bytesTotal) {
             originCallback.onProgress(bytesWritten, bytesTotal);
         }
 
