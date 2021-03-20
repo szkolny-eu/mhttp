@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -39,6 +40,7 @@ public final class Request {
     private final Executor mExecutor;
     private final ThreadMode mThreadMode;
     private final okhttp3.OkHttpClient mOkHttpClient;
+    private final List<Integer> mAllowedErrorCodes;
 
     private okhttp3.Call mRawCall;
 
@@ -50,6 +52,7 @@ public final class Request {
         mExecutor = builder.mExecutor;
         mThreadMode = builder.mThreadMode;
         mOkHttpClient = builder.mOkHttpClient;
+        mAllowedErrorCodes = builder.mAllowedErrorCodes;
     }
 
     public okhttp3.Request raw() {
@@ -94,6 +97,10 @@ public final class Request {
 
     public OkHttpClient okHttpClient() {
         return mOkHttpClient;
+    }
+
+    public List<Integer> allowedErrorCodes() {
+        return mAllowedErrorCodes;
     }
 
     /**
@@ -187,6 +194,7 @@ public final class Request {
         Executor mExecutor;
         ThreadMode mThreadMode;
         OkHttpClient mOkHttpClient;
+        List<Integer> mAllowedErrorCodes;
 
         public Builder() {
             mCallback = Callback.EMPTY;
@@ -195,6 +203,7 @@ public final class Request {
             mRequestParams = new RequestParams();
             mThreadMode = ThreadMode.BACKGROUND;
             mOkHttpClient = null;
+            mAllowedErrorCodes = new ArrayList<>();
         }
 
         private Builder(Request request) {
@@ -206,6 +215,7 @@ public final class Request {
             mThreadMode = request.mThreadMode;
             mMediaType = request.mMediaType;
             mOkHttpClient = request.mOkHttpClient;
+            mAllowedErrorCodes = request.mAllowedErrorCodes;
         }
 
         public Builder url(HttpUrl url) {
@@ -275,6 +285,11 @@ public final class Request {
 
         public Builder patch() {
             return method(Method.PATCH);
+        }
+
+        public Builder allowErrorCode(int code) {
+            mAllowedErrorCodes.add(code);
+            return this;
         }
 
         /**

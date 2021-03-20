@@ -115,7 +115,8 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback, Conve
 
         final Request req = request;
         Response okResponse;
-        if (response.isSuccessful()) {
+        if (response.isSuccessful() || response.isRedirect()
+                || req.allowedErrorCodes().contains(response.code())) {
             try {
                 okResponse = Response.newResponse(req, response);
                 Parser_Type data = apply(okResponse);
