@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import android.util.Pair;
 import android.util.Log;
 
+import com.google.gson.JsonObject;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import im.wangchao.mhttp.body.JSONBody;
 import im.wangchao.mhttp.body.MediaTypeUtils;
 import okhttp3.CacheControl;
 import okhttp3.Call;
@@ -22,6 +25,7 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import okio.Buffer;
+import okio.BufferedSink;
 
 /**
  * <p>Description  : MRequest.</p>
@@ -40,8 +44,10 @@ public final class Request {
     private final MediaType mMediaType;
     private final Executor mExecutor;
     private final ThreadMode mThreadMode;
+    private final JsonObject mJsonBody;
     private final okhttp3.OkHttpClient mOkHttpClient;
     private final List<Integer> mAllowedErrorCodes;
+    private final String mTextBody;
 
     private okhttp3.Call mRawCall;
 
@@ -52,8 +58,10 @@ public final class Request {
         mMediaType = builder.mMediaType;
         mExecutor = builder.mExecutor;
         mThreadMode = builder.mThreadMode;
+        mJsonBody = builder.mJsonBody;
         mOkHttpClient = builder.mOkHttpClient;
         mAllowedErrorCodes = builder.mAllowedErrorCodes;
+        mTextBody = builder.mTextBody;
     }
 
     public okhttp3.Request raw() {
@@ -104,6 +112,14 @@ public final class Request {
 
     public Callback callback() {
         return mCallback;
+    }
+
+    public JsonObject jsonBody() {
+        return mJsonBody;
+    }
+
+    public String textBody() {
+        return mTextBody;
     }
 
     public OkHttpClient okHttpClient() {
@@ -204,8 +220,10 @@ public final class Request {
         MediaType mMediaType;
         Executor mExecutor;
         ThreadMode mThreadMode;
+        JsonObject mJsonBody;
         OkHttpClient mOkHttpClient;
         List<Integer> mAllowedErrorCodes;
+        String mTextBody;
 
         public Builder() {
             mCallback = Callback.EMPTY;
@@ -213,8 +231,10 @@ public final class Request {
             mRawBuilder = new okhttp3.Request.Builder();
             mRequestParams = new RequestParams();
             mThreadMode = ThreadMode.BACKGROUND;
+            mJsonBody = null;
             mOkHttpClient = null;
             mAllowedErrorCodes = new ArrayList<>();
+            mTextBody = null;
         }
 
         private Builder(Request request) {
@@ -225,8 +245,10 @@ public final class Request {
             mExecutor = request.mExecutor;
             mThreadMode = request.mThreadMode;
             mMediaType = request.mMediaType;
+            mJsonBody = request.mJsonBody;
             mOkHttpClient = request.mOkHttpClient;
             mAllowedErrorCodes = request.mAllowedErrorCodes;
+            mTextBody = request.mTextBody;
         }
 
         public Builder url(HttpUrl url) {
@@ -286,6 +308,10 @@ public final class Request {
             return method(Method.POST);
         }
 
+        public Builder postJson() {
+            return method(Method.POST).contentType(MediaTypeUtils.APPLICATION_JSON);
+        }
+
         public Builder delete() {
             return method(Method.DELETE);
         }
@@ -296,6 +322,16 @@ public final class Request {
 
         public Builder patch() {
             return method(Method.PATCH);
+        }
+
+        public Builder setJsonBody(JsonObject jsonBody) {
+            mJsonBody = jsonBody;
+            return method(Method.POST).contentType(MediaTypeUtils.APPLICATION_JSON);
+        }
+
+        public Builder setTextBody(String textBody, String mediaType) {
+            mTextBody = textBody;
+            return method(Method.POST).contentType(mediaType);
         }
 
         public Builder allowErrorCode(int code) {
@@ -420,7 +456,7 @@ public final class Request {
                 addHeader("Accept", mCallback.accept());
             }
 
-            switch (mMethod){
+            switch (mMethod) {
                 case Method.GET:
                     mRawBuilder.method(mMethod, null);
                     mRawRequest = mRawBuilder.build();
@@ -431,9 +467,32 @@ public final class Request {
                     mRawRequest = mRawBuilder.build();
                     break;
                 default:
-                    // inject callback if exist.
-                    mRawBuilder.method(mMethod, mRequestParams.requestBody(mMediaType,
-                            (mCallback instanceof AbsCallbackHandler ? (AbsCallbackHandler) mCallback : null)));
+                    if (MediaTypeUtils.isJSON(mMediaType) && mJsonBody != null) {
+                        mRawBuilder.method(mMethod, new JSONBody(mJsonBody.toString()));
+                    }
+                    else if (mTextBody != null) {
+                        mRawBuilder.method(mMethod, new RequestBody() {
+                            @Override
+                            public MediaType contentType() {
+                                return mMediaType;
+                            }
+
+                            @Override
+                            public void writeTo(BufferedSink sink) throws IOException {
+                                sink.write(mTextBody.getBytes(), 0, mTextBody.getBytes().length);
+                            }
+
+                            @Override
+                            public long contentLength() throws IOException {
+                                return mTextBody.getBytes().length;
+                            }
+                        });
+                    }
+                    else {
+                        // inject callback if exist.
+                        mRawBuilder.method(mMethod, mRequestParams.requestBody(mMediaType,
+                                (mCallback instanceof AbsCallbackHandler ? (AbsCallbackHandler) mCallback : null)));
+                    }
                     mRawRequest = mRawBuilder.build();
                     break;
             }
