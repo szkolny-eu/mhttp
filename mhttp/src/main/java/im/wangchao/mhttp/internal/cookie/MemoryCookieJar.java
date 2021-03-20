@@ -53,4 +53,8 @@ public class MemoryCookieJar implements ClearableCookieJar {
     synchronized public void clear() {
         cache.clear();
     }
+
+    synchronized public void clearForDomain(String domain) {
+        cache.clearForDomain(domain);
+    }
 }

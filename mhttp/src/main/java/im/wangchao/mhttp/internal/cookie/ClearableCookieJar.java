@@ -21,4 +21,5 @@ import okhttp3.CookieJar;
 public interface ClearableCookieJar extends CookieJar {
 
     void clear();
+    void clearForDomain(String domain);
 }

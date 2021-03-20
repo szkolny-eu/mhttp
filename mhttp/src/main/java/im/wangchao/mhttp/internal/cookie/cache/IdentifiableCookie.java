@@ -62,6 +62,8 @@ class IdentifiableCookie {
     @Override
     public int hashCode() {
         int hash = 17;
+        if (cookie == null)
+            return hash;
         hash = 31 * hash + cookie.name().hashCode();
         hash = 31 * hash + cookie.domain().hashCode();
         hash = 31 * hash + cookie.path().hashCode();

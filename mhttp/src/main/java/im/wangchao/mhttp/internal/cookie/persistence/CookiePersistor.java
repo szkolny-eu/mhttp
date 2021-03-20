@@ -44,4 +44,11 @@ public interface CookiePersistor {
      */
     void clear();
 
+    /**
+     * Clear all cookies from persistence for specified url.
+     *
+     * @param domain domain name
+     */
+    void clearForDomain(String domain);
+
 }

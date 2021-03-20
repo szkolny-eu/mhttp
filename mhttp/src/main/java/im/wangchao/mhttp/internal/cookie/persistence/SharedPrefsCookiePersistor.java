@@ -31,7 +31,7 @@ public class SharedPrefsCookiePersistor implements CookiePersistor {
     private SharedPreferences sharedPreferences;
 
     public SharedPrefsCookiePersistor(Context context) {
-        final String SHARED_PREFERENCES_NAME = "CookiePersistence";
+        final String SHARED_PREFERENCES_NAME = "cookies";
 
         sharedPreferences =
                 context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
@@ -76,5 +76,16 @@ public class SharedPrefsCookiePersistor implements CookiePersistor {
     @Override
     public void clear() {
         sharedPreferences.edit().clear().apply();
+    }
+
+    @Override
+    public void clearForDomain(String domain) {
+        List<Cookie> cookies = loadAll();
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        for (Cookie cookie : cookies) {
+            if (cookie.domain().equals(domain))
+            editor.remove(createCookieKey(cookie));
+        }
+        editor.apply();
     }
 }

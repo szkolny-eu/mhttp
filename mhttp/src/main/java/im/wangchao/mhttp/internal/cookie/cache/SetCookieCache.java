@@ -16,6 +16,7 @@
 
 package im.wangchao.mhttp.internal.cookie.cache;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -49,6 +50,17 @@ public class SetCookieCache implements CookieCache {
     @Override
     public void clear() {
         cookies.clear();
+    }
+
+    @Override
+    public void clearForDomain(String domain) {
+        Collection<IdentifiableCookie> removeCookies = new ArrayList<>();
+        for (IdentifiableCookie cookie: cookies) {
+            if (cookie.getCookie().domain().equals(domain)) {
+                removeCookies.add(cookie);
+            }
+        }
+        cookies.removeAll(removeCookies);
     }
 
     @Override
