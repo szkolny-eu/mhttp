@@ -8,7 +8,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         consumerProguardFiles 'proguard-rules.pro'
         versionCode 1
-        versionName PROJ_VERSION
+        versionName "1.10.1"
         javaCompileOptions {
             annotationProcessorOptions {
                 includeCompileClasspath = true
