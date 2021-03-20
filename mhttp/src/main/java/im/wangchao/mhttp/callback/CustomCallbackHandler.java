@@ -9,14 +9,11 @@ import im.wangchao.mhttp.internal.exception.ParserException;
  * <p>Date         : 16/3/20.</p>
  * <p>Time         : 上午9:06.</p>
  */
-public abstract class GSONCallbackHandler<T> extends JSONCallbackHandler {
+public abstract class CustomCallbackHandler<T> extends TextCallbackHandler {
 
-    @Override final public void onSuccess(JSON data, Response response) {
-        if (data.jsonArray != null) {
-            onSuccess(parser(data.jsonArray.toString()));
-        }
-        else if (data.jsonObject != null) {
-            onSuccess(parser(data.jsonObject.toString()));
+    @Override final public void onSuccess(String data, Response response) {
+        if (data != null) {
+            onSuccess(parser(data));
         }
         else {
             onFailure(response, new ParserException());
@@ -28,7 +25,7 @@ public abstract class GSONCallbackHandler<T> extends JSONCallbackHandler {
     }
 
     /** parser Json to T */
-    protected abstract T parser(String jsonString);
+    protected abstract T parser(String data);
 
     public void onSuccess(T t){
 

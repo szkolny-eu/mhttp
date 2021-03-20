@@ -1,8 +1,7 @@
 package im.wangchao.mhttp.callback;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import im.wangchao.mhttp.AbsCallbackHandler;
 import im.wangchao.mhttp.Accept;
@@ -14,9 +13,9 @@ import im.wangchao.mhttp.Response;
  * <p>Date         : 15/10/18.</p>
  * <p>Time         : 下午2:25.</p>
  */
-public class JSONCallbackHandler extends AbsCallbackHandler<JSONCallbackHandler.JSON> {
+public class JsonCallbackHandler extends AbsCallbackHandler<JsonObject> {
 
-    @Override public void onSuccess(JSON data, Response response) {
+    @Override public void onSuccess(JsonObject data, Response response) {
 
     }
 
@@ -24,27 +23,26 @@ public class JSONCallbackHandler extends AbsCallbackHandler<JSONCallbackHandler.
 
     }
 
-    @Override public JSON backgroundParser(Response response) throws Exception {
-        final byte[] body = response.raw().body().bytes();
-        final String bodyString = byteArrayToString(body);
-        JSON json = new JSON();
-
-        if (bodyString != null){
+    @Override public JsonObject backgroundParser(Response response) throws Exception {
+        try {
+            byte[] body = response.raw().body().bytes();
+            String bodyString = byteArrayToString(body);
             try {
-                json.jsonObject = new JSONObject(bodyString);
-            } catch (JSONException e) {
-                json.jsonArray = new JSONArray(bodyString);
+                return new JsonParser().parse(bodyString).getAsJsonObject();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                response.parserErrorBody = bodyString;
+                return null;
             }
         }
-        return json;
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override public String accept() {
         return Accept.ACCEPT_JSON;
-    }
-
-    public static class JSON {
-        public JSONObject jsonObject;
-        public JSONArray jsonArray;
     }
 }

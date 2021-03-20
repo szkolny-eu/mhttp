@@ -39,6 +39,7 @@ dependencies {
     compileOnly deps.rxjava
     api deps.okhttp
     api deps.mhttpannotations
+    api deps.gson
 //    implementation project(':mhttp-annotations')
 }
 
