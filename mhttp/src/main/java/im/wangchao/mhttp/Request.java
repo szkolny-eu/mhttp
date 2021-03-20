@@ -38,6 +38,7 @@ public final class Request {
     private final MediaType mMediaType;
     private final Executor mExecutor;
     private final ThreadMode mThreadMode;
+    private final okhttp3.OkHttpClient mOkHttpClient;
 
     private okhttp3.Call mRawCall;
 
@@ -48,6 +49,7 @@ public final class Request {
         mMediaType = builder.mMediaType;
         mExecutor = builder.mExecutor;
         mThreadMode = builder.mThreadMode;
+        mOkHttpClient = builder.mOkHttpClient;
     }
 
     public okhttp3.Request raw() {
@@ -88,6 +90,10 @@ public final class Request {
 
     public Callback callback() {
         return mCallback;
+    }
+
+    public OkHttpClient okHttpClient() {
+        return mOkHttpClient;
     }
 
     /**
@@ -153,7 +159,13 @@ public final class Request {
 
     private Call rawCall(){
         if (mRawCall == null){
-            OkHttpClient client = MHttp.instance().client();
+            OkHttpClient client;
+            if (mOkHttpClient == null) {
+                client = MHttp.instance().client();
+            }
+            else {
+                client = mOkHttpClient;
+            }
             mRawCall = client.newCall(raw());
         }
         return mRawCall;
@@ -174,13 +186,15 @@ public final class Request {
         MediaType mMediaType;
         Executor mExecutor;
         ThreadMode mThreadMode;
+        OkHttpClient mOkHttpClient;
 
         public Builder() {
             mCallback = Callback.EMPTY;
             mMethod = Method.GET;
             mRawBuilder = new okhttp3.Request.Builder();
             mRequestParams = new RequestParams();
-            mThreadMode = ThreadMode.MAIN;
+            mThreadMode = ThreadMode.BACKGROUND;
+            mOkHttpClient = null;
         }
 
         private Builder(Request request) {
@@ -191,6 +205,7 @@ public final class Request {
             mExecutor = request.mExecutor;
             mThreadMode = request.mThreadMode;
             mMediaType = request.mMediaType;
+            mOkHttpClient = request.mOkHttpClient;
         }
 
         public Builder url(HttpUrl url) {
@@ -230,6 +245,11 @@ public final class Request {
 
         public Builder cacheControl(CacheControl cacheControl) {
             mRawBuilder.cacheControl(cacheControl);
+            return this;
+        }
+
+        public Builder withClient(OkHttpClient okHttpClient) {
+            mOkHttpClient = okHttpClient;
             return this;
         }
 
