@@ -23,6 +23,7 @@ public final class MediaTypeUtils {
     public static final MediaType OCTET = MediaType.parse(APPLICATION_OCTET_STREAM);
     public static final MediaType FORM = MediaType.parse(APPLICATION_FORM);
     public static final MediaType XML = MediaType.parse(APPLICATION_XML);
+    public static final MediaType DEFAULT = FORM;
 
     /**
      * 判断两个 MediaType 是否相等，只判断 type 和 subType。

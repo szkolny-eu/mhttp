@@ -392,7 +392,7 @@ public final class Request {
                         mMediaType = MediaTypeUtils.DEFAULT;
                     }
                 }
-                // default is Application/json; charset=utf-8
+                // default is application/x-www-form-urlencoded
                 else {
                     mMediaType = MediaTypeUtils.DEFAULT;
                 }
